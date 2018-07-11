@@ -1,0 +1,120 @@
+<style lang='less'>
+page {
+  height: 100%;
+}
+swiper {
+    height: 100%;
+  swiper-item {
+    .item {
+      box-sizing: border-box;
+      border: 2rpx solid #eee;
+      padding: 20rpx;
+      width: 100%;
+      .item-top {
+        image {
+          width: 100%;
+          display: block;
+        }
+        .item-info {
+          padding: 20rpx 3rpx;
+          font-size: 22rpx;
+          color: #c4c4c4;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          .item-title {
+          }
+          .item-author {
+          }
+        }
+      }
+      .item-bottom {
+        min-height: 200rpx;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        .item-content {
+          font-size: 28rpx;
+        }
+        .item-date {
+          align-self: flex-end;
+          font-size: 22rpx;
+          color: #c4c4c4;
+        }
+      }
+    }
+  }
+}
+</style>
+
+<template>
+  <swiper indicator-dots="{{swiperInfo.indicatorDots}}" autoplay='{{swiperInfo.autoplay}}' circular='{{swiperInfo.circular}}' next-margin="{{nextMargin}}">
+    <block wx:for="{{swiperData.list}}" wx:key="">
+      <swiper-item>
+        <view class="item">
+          <view class='item-top'>
+            <image mode="aspectFill" src="{{item.hp_img_url}}"></image>
+            <view class='item-info'>
+              <text class="item-title">{{item.hp_title}}</text>
+              <text class="item-author">{{item.hp_author}}</text>
+            </view>
+          </view>
+          <view class="item-bottom">
+            <text class="item-content">{{item.hp_content}}</text>
+            <text class="item-date">{{item.maketime}}</text>
+          </view>
+        </view>
+      </swiper-item>
+    </block>
+  </swiper>
+</template>
+
+<script>
+import wepy from 'wepy';
+const method = require('../../utils/util.js');
+export default class Index extends wepy.page {
+  config = {
+    navigationBarTitleText: 'Index'
+  };
+  data = {
+    test: '',
+    swiperInfo: {
+      indicatorDots: false,
+      autoplay: false,
+      circular: false,
+      nextMargin:"20rpx"
+    },
+    swiperData: {
+      idlist: [],
+      list: []
+    }
+  };
+  components = {};
+  methods = {};
+  events = {};
+  watch = {};
+  computed = {};
+  onLoad() {
+    method.request({
+      url: '/api/hp/idlist/0',
+      success: res => {
+        const idList = res.data.data;
+        this.swiperData.idlist = idList.slice(0);
+        idList.forEach(ele => {
+          method.request({
+            url: '/api/hp/detail/' + ele,
+            success: detail => {
+              this.swiperData.list.push(detail.data.data);
+              this.$apply();
+            }
+          });
+        });
+        // this.$apply();
+      }
+    });
+    console.log(this.swiperData);
+  }
+  onShow() {}
+}
+</script>
+

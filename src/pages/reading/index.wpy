@@ -1,0 +1,132 @@
+<!--  -->
+<style lang='less'>
+page {
+  height: 100%;
+  box-sizing: border-box;
+}
+.container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  .img {
+    height: 300rpx;
+    swiper-item {
+      image {
+        height: 300rpx;
+        width: 100%;
+      }
+    }
+  }
+  .articles {
+    flex: 1;
+    swiper-item {
+      height: 100%;
+      border: 1px solid #ccc;
+      scroll-view {
+      }
+    }
+  }
+}
+</style>
+<template>
+  <view class='container'>
+    <swiper indicator-dots autoplay circular class='img'>
+      <block wx:for="{{swiperData}}" wx:key="">
+        <swiper-item>
+          <image mode="aspectFill" src="{{item.cover}}"></image>
+        </swiper-item>
+      </block>
+    </swiper>
+    <swiper class='articles'>
+      <block wx:for="{{articles}}" wx:key="">
+        <swiper-item>
+          <scroll-view scroll-y="{{scrollY}}" scroll-with-animation @scroll="">
+            <view class="item">
+              <block wx:for="{{item.essay}}" wx:for-item="essay">
+              <view class='box1'>
+                <view>
+                  <text>{{essay.hp_title}}</text>
+                  <text class='essay'>短篇</text>
+                </view>
+                <view>
+                  <text>{{item.author.user_name}}</text>
+                  <text>{{item.guide_word}}</text>
+                </view>
+              </view>
+              </block>
+              <view class='box2'>
+                <view>
+                  <text></text>
+                  <text class='serial'>连载</text>
+                </view>
+                <view>
+                  <text></text>
+                  <text></text>
+                </view>
+              </view>
+              <view class='box3'>
+                <view>
+                  <text></text>
+                  <text class='question'>问答</text>
+                </view>
+                <view>
+                  <text></text>
+                  <text> </text>
+                </view>
+              </view>
+            </view>
+          </scroll-view>
+        </swiper-item>
+      </block>
+    </swiper>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy';
+const method = require('../../utils/util.js');
+export default class Reading extends wepy.page {
+  config = {
+    navigationBarTitleText: '阅读'
+  };
+  data = {
+    scrollY: true,
+    swiperData: [],
+    articles: [
+      {
+        essay: '1',
+        serial: '2',
+        question: '3'
+      }
+    ]
+  };
+  components = {};
+  methods = {};
+  events = {};
+  watch = {};
+  computed = {};
+  onLoad() {
+    // 轮播图
+    method.request({
+      url: '/api/reading/carousel',
+      success: res => {
+        this.swiperData = res.data.data;
+        this.$apply();
+      }
+    }),
+      method.request({
+        url: '/api/reading/index',
+        success: res => {
+          
+          const data = res.data.data;
+          console.log(data);
+          
+          console.log(this.articles);
+
+          this.$apply();
+        }
+      });
+  }
+  onShow() {}
+}
+</script>
