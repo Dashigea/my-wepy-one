@@ -20,9 +20,95 @@ page {
   .articles {
     flex: 1;
     swiper-item {
+      box-sizing: border-box;
+      padding: 20rpx;
       height: 100%;
-      border: 1px solid #ccc;
       scroll-view {
+        border: 1px solid #ccc;
+        padding: 10rpx;
+        box-sizing: border-box;
+        .item {
+          display: flex;
+          flex-direction: column;
+          justify-content: space-around;
+          padding: 20rpx;
+          view.button {
+            border: 1px solid #0094ff;
+            padding: 10rpx;
+            color: #0094ff;
+            font-size: 22rpx;
+            display: block;
+            width: 60rpx;
+            text-align: center;
+            height: 30rpx;
+            line-height: 30rpx;
+            border-radius: 10rpx;
+          }
+          .essay {
+            flex: 1;
+            .top {
+              display: flex;
+              justify-content: space-between;
+              .essay-title {
+                flex: 1;
+                font-size: 32rpx;
+                padding-right: 40rpx;
+              }
+            }
+            .btm {
+                margin-top: 20rpx;
+              .essay-name {
+                font-size: 24rpx;
+              }
+              .essay-content {
+                font-size: 24rpx;
+                margin: 20rpx 0;
+              }
+            }
+          }
+          .serial {
+            flex: 1;
+            margin: 30rpx 0;
+            .top {
+              display: flex;
+              justify-content: space-between;
+              .serial-title {
+                flex: 1;
+                font-size: 32rpx;
+                padding-right: 40rpx;
+              }
+            }
+            .btm {
+              margin-top: 20rpx;
+              .serial-name {
+                font-size: 24rpx;
+              }
+              .serial-content {
+                margin: 20rpx 0;
+                font-size: 24rpx;
+              }
+            }
+          }
+          .question {
+            flex: 1;
+            .top {
+              display: flex;
+              justify-content: space-between;
+              .question-title {
+                flex: 1;
+                font-size: 32rpx;
+                padding-right: 40rpx;
+              }
+            }
+            .btm {
+                margin-top: 20rpx;
+              .question-content {
+                margin-top: 20rpx;
+                font-size: 24rpx;
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -42,36 +128,33 @@ page {
         <swiper-item>
           <scroll-view scroll-y="{{scrollY}}" scroll-with-animation @scroll="">
             <view class="item">
-              <block wx:for="{{item.essay}}" wx:for-item="essay">
-              <view class='box1'>
-                <view>
-                  <text>{{essay.hp_title}}</text>
-                  <text class='essay'>短篇</text>
+                <view class='essay' data-id="{{item[0].content_id}}" @tap="Read">
+                  <view class='top'>
+                    <text class="essay-title">{{item[0].hp_title}}</text>
+                    <view class='button'>短 篇</view>
+                  </view>
+                  <view class='btm'>
+                    <view class='essay-name'>{{item[0].author[0].user_name}}</view>
+                    <view class='essay-content'>{{item[0].guide_word}}</view>
+                  </view>
                 </view>
-                <view>
-                  <text>{{item.author.user_name}}</text>
-                  <text>{{item.guide_word}}</text>
+              <view class='serial' data-id="{{item[2].id}}" @tap="Read">
+                <view class='top'>
+                  <text class='serial-title'>{{item[2].title}}</text>
+                  <view class='button'>连 载</view>
                 </view>
-              </view>
-              </block>
-              <view class='box2'>
-                <view>
-                  <text></text>
-                  <text class='serial'>连载</text>
-                </view>
-                <view>
-                  <text></text>
-                  <text></text>
+                <view class='btm'>
+                  <view class='serial-name'>{{item[2].author.user_name}}</view>
+                  <view class='serial-content'>{{item[2].excerpt}}</view>
                 </view>
               </view>
-              <view class='box3'>
-                <view>
-                  <text></text>
-                  <text class='question'>问答</text>
+              <view class='question' data-id="{{item[1].question_id}}" @tap="Read({{id}})">
+                <view class='top'>
+                  <text class='question-title'>{{item[1].question_title}}</text>
+                  <view class='button'>问 答</view>
                 </view>
-                <view>
-                  <text></text>
-                  <text> </text>
+                <view class='btm'>
+                  <view class='question-content'>{{item[1].answer_content}}</view>
                 </view>
               </view>
             </view>
@@ -92,16 +175,14 @@ export default class Reading extends wepy.page {
   data = {
     scrollY: true,
     swiperData: [],
-    articles: [
-      {
-        essay: '1',
-        serial: '2',
-        question: '3'
-      }
-    ]
+    articles: []
   };
   components = {};
-  methods = {};
+  methods = {
+    Read(id){
+      console.log(id);
+    }
+  };
   events = {};
   watch = {};
   computed = {};
@@ -117,12 +198,17 @@ export default class Reading extends wepy.page {
       method.request({
         url: '/api/reading/index',
         success: res => {
-          
           const data = res.data.data;
           console.log(data);
-          
-          console.log(this.articles);
-
+          for (let i = 0; i < data.essay.length; i++) {
+            //
+            this.articles.push([
+              data.essay[i],
+              data.question[i],
+              data.serial[i]
+            ]);
+          }
+          console.log('articles', this.articles);
           this.$apply();
         }
       });
