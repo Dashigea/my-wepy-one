@@ -1,110 +1,113 @@
 <!--  -->
 <style lang='less'>
-page {
-  height: 100%;
-  box-sizing: border-box;
-}
-.container {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  .img {
-    height: 300rpx;
-    swiper-item {
-      image {
-        height: 300rpx;
-        width: 100%;
+  page {
+    height: 100%;
+    box-sizing: border-box;
+  }
+  .container {
+    height: 100%;
+    .img {
+      height: 300rpx;
+      swiper-item {
+        image {
+          height: 300rpx;
+          width: 100%;
+        }
       }
     }
-  }
-  .articles {
-    flex: 1;
-    swiper-item {
-      box-sizing: border-box;
-      padding: 20rpx;
+    .content {
       height: 100%;
-      scroll-view {
-        border: 1px solid #ccc;
-        padding: 10rpx;
-        box-sizing: border-box;
-        .item {
-          display: flex;
-          flex-direction: column;
-          justify-content: space-around;
+      .articles {
+        // height: calc(100% - 150rpx);
+        height: 100%;
+        swiper-item {
+          box-sizing: border-box;
           padding: 20rpx;
-          view.button {
-            border: 1px solid #0094ff;
+          height: 100%;
+          scroll-view {
+            border: 1px solid #ccc;
             padding: 10rpx;
-            color: #0094ff;
-            font-size: 22rpx;
-            display: block;
-            width: 60rpx;
-            text-align: center;
-            height: 30rpx;
-            line-height: 30rpx;
-            border-radius: 10rpx;
-          }
-          .essay {
-            flex: 1;
-            .top {
+            box-sizing: border-box;
+            .item {
               display: flex;
-              justify-content: space-between;
-              .essay-title {
+              flex-direction: column;
+              justify-content: space-around;
+              padding: 20rpx;
+              view.button {
+                border: 1px solid #0094ff;
+                padding: 10rpx;
+                color: #0094ff;
+                font-size: 22rpx;
+                display: block;
+                width: 60rpx;
+                text-align: center;
+                height: 30rpx;
+                line-height: 30rpx;
+                border-radius: 10rpx;
+              }
+              .essay {
                 flex: 1;
-                font-size: 32rpx;
-                padding-right: 40rpx;
+                .top {
+                  display: flex;
+                  justify-content: space-between;
+                  .essay-title {
+                    flex: 1;
+                    font-size: 32rpx;
+                    padding-right: 40rpx;
+                  }
+                }
+                .btm {
+                  margin-top: 20rpx;
+                  .essay-name {
+                    font-size: 24rpx;
+                  }
+                  .essay-content {
+                    font-size: 24rpx;
+                    margin: 20rpx 0;
+                  }
+                }
               }
-            }
-            .btm {
-                margin-top: 20rpx;
-              .essay-name {
-                font-size: 24rpx;
-              }
-              .essay-content {
-                font-size: 24rpx;
-                margin: 20rpx 0;
-              }
-            }
-          }
-          .serial {
-            flex: 1;
-            margin: 30rpx 0;
-            .top {
-              display: flex;
-              justify-content: space-between;
-              .serial-title {
+              .serial {
                 flex: 1;
-                font-size: 32rpx;
-                padding-right: 40rpx;
+                margin: 30rpx 0;
+                .top {
+                  display: flex;
+                  justify-content: space-between;
+                  .serial-title {
+                    flex: 1;
+                    font-size: 32rpx;
+                    padding-right: 40rpx;
+                  }
+                }
+                .btm {
+                  margin-top: 20rpx;
+                  .serial-name {
+                    font-size: 24rpx;
+                  }
+                  .serial-content {
+                    margin: 20rpx 0;
+                    font-size: 24rpx;
+                  }
+                }
               }
-            }
-            .btm {
-              margin-top: 20rpx;
-              .serial-name {
-                font-size: 24rpx;
-              }
-              .serial-content {
-                margin: 20rpx 0;
-                font-size: 24rpx;
-              }
-            }
-          }
-          .question {
-            flex: 1;
-            .top {
-              display: flex;
-              justify-content: space-between;
-              .question-title {
+              .question {
                 flex: 1;
-                font-size: 32rpx;
-                padding-right: 40rpx;
-              }
-            }
-            .btm {
-                margin-top: 20rpx;
-              .question-content {
-                margin-top: 20rpx;
-                font-size: 24rpx;
+                .top {
+                  display: flex;
+                  justify-content: space-between;
+                  .question-title {
+                    flex: 1;
+                    font-size: 32rpx;
+                    padding-right: 40rpx;
+                  }
+                }
+                .btm {
+                  margin-top: 20rpx;
+                  .question-content {
+                    margin-top: 20rpx;
+                    font-size: 24rpx;
+                  }
+                }
               }
             }
           }
@@ -112,7 +115,6 @@ page {
       }
     }
   }
-}
 </style>
 <template>
   <view class='container'>
@@ -123,11 +125,12 @@ page {
         </swiper-item>
       </block>
     </swiper>
-    <swiper class='articles'>
-      <block wx:for="{{articles}}" wx:key="">
-        <swiper-item>
-          <scroll-view scroll-y="{{scrollY}}" scroll-with-animation @scroll="">
-            <view class="item">
+    <view class="content">
+      <swiper class='articles'>
+        <block wx:for="{{articles}}" wx:key="">
+          <swiper-item>
+            <scroll-view scroll-y="{{scrollY}}" scroll-with-animation @scroll="">
+              <view class="item">
                 <view class='essay' data-id="{{item[0].content_id}}" @tap="Read">
                   <view class='top'>
                     <text class="essay-title">{{item[0].hp_title}}</text>
@@ -138,81 +141,82 @@ page {
                     <view class='essay-content'>{{item[0].guide_word}}</view>
                   </view>
                 </view>
-              <view class='serial' data-id="{{item[2].id}}" @tap="Read">
-                <view class='top'>
-                  <text class='serial-title'>{{item[2].title}}</text>
-                  <view class='button'>连 载</view>
+                <view class='serial' data-id="{{item[2].id}}" @tap="Read">
+                  <view class='top'>
+                    <text class='serial-title'>{{item[2].title}}</text>
+                    <view class='button'>连 载</view>
+                  </view>
+                  <view class='btm'>
+                    <view class='serial-name'>{{item[2].author.user_name}}</view>
+                    <view class='serial-content'>{{item[2].excerpt}}</view>
+                  </view>
                 </view>
-                <view class='btm'>
-                  <view class='serial-name'>{{item[2].author.user_name}}</view>
-                  <view class='serial-content'>{{item[2].excerpt}}</view>
+                <view class='question' data-id="{{item[1].question_id}}" @tap="Read({{id}})">
+                  <view class='top'>
+                    <text class='question-title'>{{item[1].question_title}}</text>
+                    <view class='button'>问 答</view>
+                  </view>
+                  <view class='btm'>
+                    <view class='question-content'>{{item[1].answer_content}}</view>
+                  </view>
                 </view>
               </view>
-              <view class='question' data-id="{{item[1].question_id}}" @tap="Read({{id}})">
-                <view class='top'>
-                  <text class='question-title'>{{item[1].question_title}}</text>
-                  <view class='button'>问 答</view>
-                </view>
-                <view class='btm'>
-                  <view class='question-content'>{{item[1].answer_content}}</view>
-                </view>
-              </view>
-            </view>
-          </scroll-view>
-        </swiper-item>
-      </block>
-    </swiper>
+            </scroll-view>
+          </swiper-item>
+        </block>
+      </swiper>
+    </view>
   </view>
 </template>
 
 <script>
-import wepy from 'wepy';
-const method = require('../../utils/util.js');
-export default class Reading extends wepy.page {
-  config = {
-    navigationBarTitleText: '阅读'
-  };
-  data = {
-    scrollY: true,
-    swiperData: [],
-    articles: []
-  };
-  components = {};
-  methods = {
-    Read(id){
-      console.log(id);
-    }
-  };
-  events = {};
-  watch = {};
-  computed = {};
-  onLoad() {
-    // 轮播图
-    method.request({
-      url: '/api/reading/carousel',
-      success: res => {
-        this.swiperData = res.data.data;
-        this.$apply();
+  import wepy from 'wepy';
+  const method = require('../../utils/util.js');
+  export default class Reading extends wepy.page {
+    config = {
+      navigationBarTitleText: '阅读'
+    };
+    data = {
+      scrollY: true,
+      swiperData: [],
+      articles: []
+    };
+    components = {};
+    methods = {
+      Read(id) {
+        console.log(id);
       }
-    }),
+    };
+    events = {};
+    watch = {};
+    computed = {};
+    onLoad() {
+      // 轮播图
       method.request({
-        url: '/api/reading/index',
-        success: res => {
-          const data = res.data.data;
-          console.log(data);
-          for (let i = 0; i < data.essay.length; i++) {
-            //
-            this.articles.push([
-              data.essay[i],
-              data.question[i],
-              data.serial[i]
-            ]);
+          url: '/api/reading/carousel',
+          success: res => {
+            this.swiperData = res.data.data;
+            this.$apply();
           }
-          console.log('articles', this.articles);
-          this.$apply();
-        }
-      });
+        }),
+        method.request({
+          url: '/api/reading/index',
+          success: res => {
+            const data = res.data.data;
+            console.log(data);
+            for (let i = 0; i < data.essay.length; i++) {
+              //
+              this.articles.push([
+                data.essay[i],
+                data.question[i],
+                data.serial[i]
+              ]);
+            }
+            console.log('articles', this.articles);
+            this.$apply();
+          }
+        });
+    }
+    onShow() {}
   }
-  onShow() {}
-}
 </script>
