@@ -1,32 +1,180 @@
 <!--  -->
 <template>
-  <view class='container'></view>
+  <view class='container'>
+    <!-- 这个swiper设置了高度150px -->
+    <swiper circular id="swiper">
+      <block wx:for="{{item.listDetail}}" wx:key="">
+        <swiper-item>
+          <!-- 要在item下面给加个盒子 -->
+          <scroll-view scroll-y scroll-with-animation @scroll="">
+            <view class='music-box'>
+              <view class="image">
+                <image mode="aspectFill" src="{{item.cover}}"></image>
+              </view>
+              <view class='music-info'>
+                <!-- 作者介绍 -->
+                <view class='music-intro'>
+                  <view class='music-top'>
+                    <view class="music-desc">
+                      <image class='music-icon' src="{{item.author.web_url}}"></image>
+                      <view class="music-author-info">
+                        <view class='music-author'>{{item.author.user_name}}</view>
+                        <view class='music-author-desc'>{{item.author.desc}}</view>
+                      </view>
+                    </view>
+                    <view class='music-play'>
+                      <image src='../../images/music_play.png'></image>
+                    </view>
+                  </view>
+                  <view class='music-name'>{{item.album}}</view>
+                  <view class='music-time'>{{item.maketime}}</view>
+                </view>
+                <!-- 音乐介绍 -->
+                <view class="music-content">
+                  <view class='music-story'>
+                    <text class='music'>音乐故事</text>
+                    <view>
+                      <image src='../../images/music_story_selected.png'></image>
+                      <image src='../../images/music_lyric_default.png'></image>
+                      <image src='../../images/music_about_default.png'></image>
+                    </view>
+                  </view>
+                </view>
+              </view>
+            </view>
+          </scroll-view>
+        </swiper-item>
+      </block>
+    </swiper>
+  </view>
 </template>
+<style lang='less'>
+page {
+  height: 100%;
+  box-sizing: border-box;
+}
+.container {
+  height: 100%;
+  #swiper {
+    height: 100%;
+    swiper-item {
+      height: 100%;
+      scroll-view {
+        height: 100%;
+        .music-box {
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          .image {
+            height: 750rpx;
+            image {
+              width: 100%;
+              height: 750rpx;
+              display: block;
+            }
+          }
+          .music-info {
+            flex: 1;
+            box-sizing: border-box; // background-color: tomato;
+            padding: 20rpx; // border: 1px solid #ccc;
+            .music-intro {
+              font-size: 24rpx;
+              padding: 10rpx;
+              position: absolute;
+              left: 50%;
+              background-color: #fff;
+              transform: translate(-50%, -60rpx);
+              border: 1px solid #eee;
+              width: 680rpx;
+              display: flex;
+              flex-direction: column;
+              .music-top {
+                display: flex;
+                justify-content: space-between;
+                padding-right: 10rpx;
+                .music-desc {
+                  display: flex;
+                  .music-icon {
+                    height: 80rpx;
+                    width: 80rpx;
+                    display: block;
+                    border-radius: 50%;
+                  }
+                  .music-author-info {
+                    padding-left: 20rpx;
+                    flex: 1;
+                    .music-author {
+                      color: #0094ff;
+                      margin-bottom: 10rpx;
+                    }
+                  }
+                  .music-author-desc {
+                    color: #acacac;
+                  }
+                }
+                .music-play {
+                  image {
+                    height: 80rpx;
+                    width: 80rpx;
+                  }
+                }
+              }
+              .music-name {
+                margin-top: 60rpx;
+              }
+              .music-time {
+                align-self: flex-end;
+              }
+            }
+            // 音乐介绍
 
-<script>
-  import wepy from 'wepy';
-  export default class Music extends wepy.page {
-    config = {
-      navigationBarTitleText: "",
-    };
-
-    data = {};
-
-    components = {};
-
-    methods = {};
-
-    events = {};
-
-    watch = {};
-
-    computed = {};
-
-    onLoad() { };
-
-    onShow() { };
+          }
+        }
+      }
+    }
   }
+}
+</style>
+<script>
+import wepy from 'wepy'
+const method = require('../../utils/util.js')
+export default class Music extends wepy.page {
+  config = {
+    navigationBarTitleText: '音乐'
+  }
+  data = {
+    item: {
+      idList: [],
+      listDetail: []
+    }
+  }
+  components = {}
+  methods = {}
+  events = {}
+  watch = {}
+  computed = {}
+  onLoad() {
+    // 获取列表id
+    method.request({
+      url: '/api/music/idlist/0',
+      success: res => {
+        this.item.idList = res.data.data.slice(0)
+        this.$apply()
+        console.log(this.item.idList)
+        this.item.idList.forEach(ele => {
+          method.request({
+            url: '/api/music/detail/' + ele,
+            success: res => {
+              this.item.listDetail.push(res.data.data)
+              this.$apply()
+            }
+          })
+        })
+        console.log(this.item)
+      }
+    })
+  }
+  onShow() {}
+}
 </script>
 
-<style lang='less'>
-</style>
