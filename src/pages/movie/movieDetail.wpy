@@ -1,33 +1,39 @@
 <!--  -->
 <template>
-  <view class='container'>
-    <video src="{{}}" controls="true" autoplay="true" loop="true" objectFit="contain" @pause="pause" @waiting="waiting" @error="error">
-        </video>
-    <view class='movie-box'>
-      <view class="movie-story">电影故事</view>
-      <view class='movie-content-box'>
-        <view class='content-top'>
-          <image class='icon' src='{{movieInfo[0].author_list[0].web_url}}'></image>
-          <view class='userInfo'>
-            <view class='userName'>{{movieInfo[0].author_list[0].user_name}}</view>
-            <text class='time'>{{movieInfo[0].input_date}}</text>
+  <import src='../../wxParse/wxParse.wxml'>
+    <view class='container'>
+      <scroll-view scroll-y scroll-with-animation @scroll="">
+        <view class='video'></view>
+        <view class='movie-box'>
+          <view class="movie-story">电影故事</view>
+          <view class='movie-content-box'>
+            <view class='content-top'>
+              <image class='icon' src='{{movieInfo[0].author_list[0].web_url}}'></image>
+              <view class='userInfo'>
+                <view class='userName'>{{movieInfo[0].author_list[0].user_name}}</view>
+                <text class='time'>{{movieInfo[0].input_date}}</text>
+              </view>
+            </view>
+            <view class='content-title'>{{movieInfo[0].summary}}</view>
+            <view class='content'>
+              <template is="wxParse" data="{{wxParseData:article.nodes}}" />
+            </view>
           </view>
         </view>
-        <view class='content-title'>{{movieInfo[0].summary}}</view>
-        <view class='content'>{{movieInfo[0].content}}</view>
-      </view>
+      </scroll-view>
     </view>
-  </view>
 </template>
 <style lang='less'>
+@import url('../../wxParse/wxParse.wxss');
 page {
   height: 100%;
 }
 .container {
   height: 100%;
-  video {
+  .video {
     width: 100%;
-    display: block;
+    height: 375rpx;
+    background-color: #000;
   }
   .movie-box {
     padding-top: 15rpx;
@@ -73,13 +79,15 @@ page {
 </style>
 <script>
 import wepy from 'wepy';
+const wxParse = require('../../wxParse/wxParse.js');
 const method = require('../../utils/util.js');
 export default class Movie extends wepy.page {
   config = {
     navigationBarTitleText: '电影详情'
   };
   data = {
-    movieInfo: {}
+    movieInfo: {},
+    content: ''
   };
   components = {};
   methods = {};
@@ -91,7 +99,6 @@ export default class Movie extends wepy.page {
     wx.getStorage({
       key: 'id',
       success: res => {
-        console.log(res);
         const id = parseInt(res.data);
         method.request({
           url: '/api/movie/' + id + '/story/1/0',
@@ -99,9 +106,9 @@ export default class Movie extends wepy.page {
             this.movieInfo = JSON.parse(
               JSON.stringify(backdata.data.data.data)
             );
+            this.content = this.movieInfo[0].content;
+            wxParse.wxParse('article', 'html', this.content, this, 5);
             this.$apply();
-            console.log(this.movieInfo);
-            console.log(this.movieInfo[0].author_list[0].web_url);
           }
         });
       }
