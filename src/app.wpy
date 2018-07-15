@@ -9,7 +9,8 @@ export default class extends wepy.app {
       'pages/index/index',
       'pages/reading/index',
       'pages/music/index',
-      'pages/movie/index'
+      'pages/movie/index',
+      'pages/movie/movieDetail'
     ],
     window: {
       backgroundTextStyle: 'light',

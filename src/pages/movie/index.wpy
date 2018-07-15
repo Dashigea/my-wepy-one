@@ -1,32 +1,90 @@
 <!--  -->
 <template>
-  <view class='container'></view>
+  <view class='container'>
+    <scroll-view scroll-y scroll-with-animation @scroll="">
+      <block wx:for="{{movieList}}">
+        <view class='movie-box' data-id="{{item.id}}" @tap="toDetail">
+          <view class='movie'>
+            <text class='movie-title'>{{item.title}}</text>
+          </view>
+        </view>
+      </block>
+    </scroll-view>
+  </view>
 </template>
-
-<script>
-  import wepy from 'wepy';
-  export default class Movie extends wepy.page {
-    config = {
-      navigationBarTitleText: "",
-    };
-
-    data = {};
-
-    components = {};
-
-    methods = {};
-
-    events = {};
-
-    watch = {};
-
-    computed = {};
-
-    onLoad() { };
-
-    onShow() { };
-  }
-</script>
-
 <style lang='less'>
+page {
+  height: 100%;
+}
+.container {
+  height: 100%;
+  scroll-view {
+    .movie-box {
+      .movie {
+        height: 320rpx;
+        text-align: center;
+        border-bottom: 1rpx solid #eee;
+        box-shadow: 0 3rpx 0 0 #eee;
+        .movie-title {
+          line-height: 320rpx;
+        }
+      }
+    }
+  }
+}
 </style>
+<script>
+import wepy from 'wepy';
+const method = require('../../utils/util.js');
+export default class Movie extends wepy.page {
+  config = {
+    navigationBarTitleText: '电影'
+  };
+
+  data = {
+    movieList: []
+  };
+
+  components = {};
+
+  methods = {
+    toDetail(e) {
+      const id = e.currentTarget.dataset.id;
+      wx.setStorage({
+        key: 'id',
+        data: id
+      });
+      wepy.showToast({
+        title: '正在跳转', //提示的内容,
+        icon: 'loading', //图标,
+        duration: 1000, //延迟时间,
+        mask: false, //显示透明蒙层，防止触摸穿透,
+        success: res => {
+          wx.navigateTo({
+            url: '/pages/movie/movieDetail'
+          });
+        }
+      });
+    }
+  };
+
+  events = {};
+
+  watch = {};
+
+  computed = {};
+
+  onLoad() {
+    method.request({
+      url: '/api/movie/list/0',
+      success: res => {
+        console.log(res);
+        this.movieList = res.data.data;
+        this.$apply();
+      }
+    });
+  }
+
+  onShow() {}
+}
+</script>
