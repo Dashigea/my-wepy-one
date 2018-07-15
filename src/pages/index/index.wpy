@@ -74,7 +74,7 @@ import wepy from 'wepy';
 const method = require('../../utils/util.js');
 export default class Index extends wepy.page {
   config = {
-    navigationBarTitleText: 'Index'
+    navigationBarTitleText: 'ONE'
   };
   data = {
     test: '',

@@ -2,7 +2,7 @@
 <template>
   <view class='container'>
     <!-- 这个swiper设置了高度150px -->
-    <swiper circular id="swiper">
+    <swiper circular id="swiper" bindchange="changePlay">
       <block wx:for="{{item.listDetail}}" wx:key="">
         <swiper-item>
           <!-- 要在item下面给加个盒子 -->
@@ -21,22 +21,39 @@
                         <view class='music-author'>{{item.author.user_name}}</view>
                         <view class='music-author-desc'>{{item.author.desc}}</view>
                       </view>
+                      <view class='music-play' @tap="play({{index}})">
+                        <image src="{{!play?'../../images/music_play.png':'../../images/music_pause.png'}}"></image>
+                        <audio id="myAudio" src="{{item.music_id}}"></audio>
+                      </view>
+                      <!-- <view class='music-play' @tap="pause" wx:if="{{!play}}"> 
+                        <image src='../../images/music_pause.png'></image>
+                      </view> -->
                     </view>
-                    <view class='music-play'>
-                      <image src='../../images/music_play.png'></image>
-                    </view>
+                    <view class='music-name'>{{item.album}}</view>
+                    <view class='music-time'>{{item.maketime}}</view>
                   </view>
-                  <view class='music-name'>{{item.album}}</view>
-                  <view class='music-time'>{{item.maketime}}</view>
-                </view>
-                <!-- 音乐介绍 -->
-                <view class="music-content">
-                  <view class='music-story'>
-                    <text class='music'>音乐故事</text>
-                    <view>
-                      <image src='../../images/music_story_selected.png'></image>
-                      <image src='../../images/music_lyric_default.png'></image>
-                      <image src='../../images/music_about_default.png'></image>
+                  <!-- 音乐介绍 -->
+                  <view class="music-content">
+                    <view class='music-story'>
+                      <text class='music' wx:if="{{selected==0}}">音乐故事</text>
+                      <text class='music' wx:if="{{selected==1}}">歌词</text>
+                      <text class='music' wx:if="{{selected==2}}">歌曲信息</text>
+                      <view>
+                        <image src="{{selected==0?'../../images/music_story_selected.png':'../../images/music_story_default.png'}}" @tap="selected({{0}})"></image>
+                        <image src="{{selected==1?'../../images/music_lyric_selected.png':'../../images/music_lyric_default.png'}}" @tap="selected({{1}})"></image>
+                        <image src="{{selected==2?'../../images/music_about_selected.png':'../../images/music_about_default.png'}}" @tap="selected({{2}})"></image>
+                      </view>
+                    </view>
+                    <view class='content' wx:if="{{selected==0}}">
+                      <view class='content-title'>{{item.story_title}}</view>
+                      <view class='content-author'>{{item.author.user_name}}</view>
+                      <view class='content-story' decode="{{true}}">{{item.story}}</view>
+                    </view>
+                    <view class='content' wx:if="{{selected==1}}">
+                      {{item.lyric}}
+                    </view>
+                    <view class='content' wx:if='{{selected==2}}'>
+                      {{item.info}}
                     </view>
                   </view>
                 </view>
@@ -79,17 +96,19 @@ page {
             padding: 20rpx; // border: 1px solid #ccc;
             .music-intro {
               font-size: 24rpx;
-              padding: 10rpx;
               position: absolute;
               left: 50%;
               background-color: #fff;
               transform: translate(-50%, -60rpx);
-              border: 1px solid #eee;
               width: 680rpx;
               display: flex;
               flex-direction: column;
               .music-top {
+                box-shadow: 0 3rpx 0 0 #eee;
+                border: 1px solid #eee;
+                padding: 10rpx;
                 display: flex;
+                flex-direction: column;
                 justify-content: space-between;
                 padding-right: 10rpx;
                 .music-desc {
@@ -112,22 +131,68 @@ page {
                     color: #acacac;
                   }
                 }
+                .music-name {
+                  margin-top: 60rpx;
+                  font-size: 28rpx;
+                  color: #000;
+                }
+                .music-time {
+                  align-self: flex-end;
+                  color: #acacac;
+                }
                 .music-play {
+                  position: relative;
+                   height: 80rpx;
+                    width: 80rpx;
+                  audio{
+                    height: 80rpx;
+                    width: 80rpx;
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                  }
                   image {
                     height: 80rpx;
                     width: 80rpx;
                   }
                 }
               }
-              .music-name {
-                margin-top: 60rpx;
+            } // 音乐介绍
+            .music-content {
+              padding-top: 50rpx; // height: 40rpx;
+              box-sizing: border-box;
+              .music-story {
+                display: flex;
+                justify-content: space-between;
+                font-size: 22rpx;
+                height: 70rpx;
+                line-height: 70rpx;
+                border-bottom: 1px solid #ccc;
+                .music {
+                  font-size: 28rpx;
+                }
+                >view {
+                  image {
+                    width: 80rpx;
+                    height: 80rpx;
+                  }
+                }
               }
-              .music-time {
-                align-self: flex-end;
+              .content {
+                padding-top: 40rpx;
+                box-sizing: border-box;
+                .contetn-title{
+                  font-size: 32rpx;
+                }
+                .content-author{
+                  color: #0094ff;
+                  padding-top: 20rpx;
+                }
+                .content-story{
+                  margin-top: 40rpx;
+                }
               }
             }
-            // 音乐介绍
-
           }
         }
       }
@@ -136,45 +201,72 @@ page {
 }
 </style>
 <script>
-import wepy from 'wepy'
-const method = require('../../utils/util.js')
+import wepy from 'wepy';
+const method = require('../../utils/util.js');
+// 创建音频对象
+const myAudio = wx.createInnerAudioContext();
 export default class Music extends wepy.page {
   config = {
     navigationBarTitleText: '音乐'
-  }
+  };
   data = {
+    play: false,
     item: {
       idList: [],
       listDetail: []
+    },
+    selected: 0
+  };
+  components = {};
+  methods = {
+    selected(index) {
+      this.selected = index;
+      this.$apply();
+      console.log(index);
+      console.log(this.selected);
+    },
+    play(res){
+      this.play = !this.play
+      let flag = true
+      if(flag){
+        myAudio.play();
+        flag = false;
+      }else {
+        myAudio.pause();
+      }
+      console.log(res);
+    },
+    changePlay(){
+      this.play = false
     }
-  }
-  components = {}
-  methods = {}
-  events = {}
-  watch = {}
-  computed = {}
+  
+  };
+  events = {};
+  watch = {};
+  computed = {};
   onLoad() {
     // 获取列表id
     method.request({
       url: '/api/music/idlist/0',
       success: res => {
-        this.item.idList = res.data.data.slice(0)
-        this.$apply()
-        console.log(this.item.idList)
+        this.item.idList = res.data.data.slice(0);
+        this.$apply();
+        console.log(this.item.idList);
         this.item.idList.forEach(ele => {
           method.request({
             url: '/api/music/detail/' + ele,
             success: res => {
-              this.item.listDetail.push(res.data.data)
-              this.$apply()
+              this.item.listDetail.push(res.data.data);
+              this.$apply();
             }
-          })
-        })
-        console.log(this.item)
+          });
+        });
+        console.log(this.item);
       }
-    })
+    });
   }
-  onShow() {}
+  onShow() {
+  }
 }
 </script>
 
