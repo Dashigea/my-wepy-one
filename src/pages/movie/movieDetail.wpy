@@ -107,6 +107,7 @@ export default class Movie extends wepy.page {
               JSON.stringify(backdata.data.data.data)
             );
             this.content = this.movieInfo[0].content;
+            
             wxParse.wxParse('article', 'html', this.content, this, 5);
             this.$apply();
           }

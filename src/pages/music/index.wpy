@@ -1,5 +1,6 @@
 <!--  -->
 <template>
+<import src="../../wxParse/wxParse.wxml">
   <view class='container'>
     <!-- 这个swiper设置了高度150px -->
     <swiper circular id="swiper" bindchange="changePlay">
@@ -47,7 +48,10 @@
                     <view class='content' wx:if="{{selected==0}}">
                       <view class='content-title'>{{item.story_title}}</view>
                       <view class='content-author'>{{item.author.user_name}}</view>
-                      <view class='content-story' decode="{{true}}">{{item.story}}</view>
+                      <view class='content-story' decode="{{true}}">
+                        <template is="wxParse" data="{{wxParseData:article.nodes}}" />
+                          <!-- {{item.story}} -->
+                      </view>
                     </view>
                     <view class='content' wx:if="{{selected==1}}">
                       {{item.lyric}}
@@ -66,6 +70,7 @@
   </view>
 </template>
 <style lang='less'>
+@import url('../../wxParse/wxParse.wxss');
 page {
   height: 100%;
   box-sizing: border-box;
@@ -142,9 +147,9 @@ page {
                 }
                 .music-play {
                   position: relative;
-                   height: 80rpx;
-                    width: 80rpx;
-                  audio{
+                  height: 80rpx;
+                  width: 80rpx;
+                  audio {
                     height: 80rpx;
                     width: 80rpx;
                     position: absolute;
@@ -171,7 +176,7 @@ page {
                 .music {
                   font-size: 28rpx;
                 }
-                >view {
+                > view {
                   image {
                     width: 80rpx;
                     height: 80rpx;
@@ -181,14 +186,14 @@ page {
               .content {
                 padding-top: 40rpx;
                 box-sizing: border-box;
-                .contetn-title{
+                .contetn-title {
                   font-size: 32rpx;
                 }
-                .content-author{
+                .content-author {
                   color: #0094ff;
                   padding-top: 20rpx;
                 }
-                .content-story{
+                .content-story {
                   margin-top: 40rpx;
                 }
               }
@@ -201,72 +206,70 @@ page {
 }
 </style>
 <script>
-import wepy from 'wepy';
-const method = require('../../utils/util.js');
+import wepy from 'wepy'
+const wxParse = require('../../wxParse/wxParse.js')
+const method = require('../../utils/util.js')
 // 创建音频对象
-const myAudio = wx.createInnerAudioContext();
+const myAudio = wx.createInnerAudioContext()
 export default class Music extends wepy.page {
   config = {
     navigationBarTitleText: '音乐'
-  };
+  }
   data = {
     play: false,
     item: {
       idList: [],
       listDetail: []
     },
-    selected: 0
-  };
-  components = {};
+    selected: 0,
+    story: ''
+  }
+  components = {}
   methods = {
     selected(index) {
-      this.selected = index;
-      this.$apply();
-      console.log(index);
-      console.log(this.selected);
+      this.selected = index
+      this.$apply()
     },
-    play(res){
+    play(res) {
       this.play = !this.play
       let flag = true
-      if(flag){
-        myAudio.play();
-        flag = false;
-      }else {
-        myAudio.pause();
+      if (flag) {
+        myAudio.play()
+        flag = false
+      } else {
+        myAudio.pause()
       }
-      console.log(res);
     },
-    changePlay(){
+    changePlay() {
       this.play = false
     }
-  
-  };
-  events = {};
-  watch = {};
-  computed = {};
+  }
+  events = {}
+  watch = {}
+  computed = {}
   onLoad() {
     // 获取列表id
     method.request({
       url: '/api/music/idlist/0',
       success: res => {
-        this.item.idList = res.data.data.slice(0);
-        this.$apply();
-        console.log(this.item.idList);
+        this.item.idList = res.data.data.slice(0)
+        this.$apply()
         this.item.idList.forEach(ele => {
           method.request({
             url: '/api/music/detail/' + ele,
             success: res => {
-              this.item.listDetail.push(res.data.data);
-              this.$apply();
+              this.story = res.data.data.story
+              
+        wxParse.wxParse('article', 'html', this.story, this, 5)
+              this.item.listDetail.push(res.data.data)
+              this.$apply()
             }
-          });
-        });
-        console.log(this.item);
+          })
+        })
       }
-    });
+    })
   }
-  onShow() {
-  }
+  onShow() {}
 }
 </script>
 
